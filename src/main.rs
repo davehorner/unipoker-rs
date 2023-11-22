@@ -3,14 +3,7 @@ use std::fmt;
 use regex::Regex;
 use clap::Parser;
 
-// Define regex instances outside the method with static lifetime
-lazy_static::lazy_static! {
-    static ref HAND_FLUSH_REGEX: Regex = Regex::new(r"([\u{1f0a1}-\u{1f0ae}]{5})|([\u{1f0b1}-\u{1f0be}]{5})|([\u{1f0c1}-\u{1f0ce}]{5})|([\u{1f0d1}-\u{1f0de}]{5})").unwrap();
-    static ref HAND_STRAIGHT_REGEX: Regex = Regex::new(r"([\u{1f0a1}\u{1f0b1}\u{1f0d1}\u{1f0c1}][\u{1f0ae}\u{1f0be}\u{1f0de}\u{1f0ce}][\u{1f0ad}\u{1f0bd}\u{1f0dd}\u{1f0cd}][\u{1f0ab}\u{1f0bb}\u{1f0db}\u{1f0cb}][\u{1f0aa}\u{1f0ba}\u{1f0da}\u{1f0ca}])|[\u{1f0ae}\u{1f0be}\u{1f0de}\u{1f0ce}][\u{1f0ad}\u{1f0bd}\u{1f0dd}\u{1f0cd}][\u{1f0ab}\u{1f0bb}\u{1f0db}\u{1f0cb}][\u{1f0aa}\u{1f0ba}\u{1f0da}\u{1f0ca}][\u{1f0a9}\u{1f0b9}\u{1f0d9}\u{1f0c9}]|[\u{1f0ad}\u{1f0bd}\u{1f0dd}\u{1f0cd}][\u{1f0ab}\u{1f0bb}\u{1f0db}\u{1f0cb}][\u{1f0aa}\u{1f0ba}\u{1f0da}\u{1f0ca}][\u{1f0a9}\u{1f0b9}\u{1f0d9}\u{1f0c9}][\u{1f0a8}\u{1f0b8}\u{1f0d8}\u{1f0c8}]|[\u{1f0ab}\u{1f0bb}\u{1f0db}\u{1f0cb}][\u{1f0aa}\u{1f0ba}\u{1f0da}\u{1f0ca}][\u{1f0a9}\u{1f0b9}\u{1f0d9}\u{1f0c9}][\u{1f0a8}\u{1f0b8}\u{1f0d8}\u{1f0c8}][\u{1f0a7}\u{1f0b7}\u{1f0d7}\u{1f0c7}").unwrap();
-    static ref HAND_OF_A_KIND_REGEX: Regex = Regex::new(r"(\d)\1{3}").unwrap();
-}
-
-const NEW_DECK: [&str; 52] = [
+ const NEW_DECK: [&str; 52] = [
     // Spades
     "🂡", "🂢", "🂣", "🂤", "🂥", "🂦", "🂧", "🂨", "🂩", "🂪", "🂫", "🂭", "🂮",
     // Hearts
@@ -76,16 +69,8 @@ struct Hand {
 
 impl Hand {    
     const HAND_FLUSH_REGEX: &str = "([🂡-🂮]{5})|([🂱-🂾]{5})|([🃁-🃎]{5})|([🃑-🃞]{5})";
-    const HAND_STRAIGHT_REGEX: &str = "([🂡🂱🃁🃑][🂮🂾🃎🃞][🂭🂽🃋🃛][🂫🂻🃊🃚][🂪🂺🃉🃙])|\
-                                      [🂮🂾🃎🃞][🂭🂽🃋🃛][🂫🂻🃊🃚][🂪🂺🃉🃙][🂭🂽🃋🃛]|\
-                                      [🂫🂻🃊🃚][🂪🂺🃉🃙][🂭🂽🃋🃛][🂡-🂻🃁-🃛][🂠-🂮]|\
-                                      [🂭🂽🃋🃛][🂫🂻🃊🃚][🂭🂽🃋🃛][🂠-🂮][🂡-🂻]|\
-                                      [🂪🂺🃉🃙][🂫🂻🃊🃚][🂭🂽🃋🃛][🂡-🂻🃁-🃛][🂠-🂮]";
-    const HAND_OF_A_KIND_REGEX: &str = "(?:[🂡🂱🃁🃑]{2,4})|(?:[🂮🂾🃎🃞]{2,4})|(?:[🂭🂽🃋🃛]{2,4})|\
-                                       (?:[🂫🂻🃊🃚]{2,4})|(?:[🂪🂺🃉🃙]{2,4})|(?:[🂭🂽🃋🃛]{2,4})|\
-                                       (?:[🂡🂱🃁🃑🂮🂾🃎🃞]{3,4})|(?:[🂭🂽🃋🃛🂫🂻🃊🃚]{3,4})|\
-                                       (?:[🂪🂺🃉🃙🂭🂽🃋🃛]{3,4})|(?:[🂡🂱🃁🃑🂮🂾🃎🃞🂭🂽🃋🃛]{4})|\
-                                       (?:[🂫🂻🃊🃚🂭🂽🃋🃛]{4})|(?:[🂡🂱🃁🃑🂮🂾🃎🃞🂭🂽🃋🃛]{4})|(?:[🂪🂺🃉🃙🂡-🂻🃁-🃛]{4})|(?:[🂠-🂮]{5})";
+    const HAND_STRAIGHT_REGEX: &str = "([🂡🂱🃁🃑][🂮🂾🃎🃞][🂭🂽🃋🃛][🂫🂻🃊🃚][🂪🂺🃉🃙])|[🂮🂾🃎🃞][🂭🂽🃋🃛][🂫🂻🃊🃚][🂪🂺🃉🃙][🂭🂽🃋🃛]|[🂫🂻🃊🃚][🂪🂺🃉🃙][🂭🂽🃋🃛][🂡-🂻🃁-🃛][🂠-🂮]|[🂭🂽🃋🃛][🂫🂻🃊🃚][🂭🂽🃋🃛][🂠-🂮][🂡-🂻]|[🂪🂺🃉🃙][🂫🂻🃊🃚][🂭🂽🃋🃛][🂡-🂻🃁-🃛][🂠-🂮]";
+    const HAND_OF_A_KIND_REGEX: &str = "(?:[🂡🂱🃁🃑]{2,4})|(?:[🂮🂾🃎🃞]{2,4})|(?:[🂭🂽🃋🃛]{2,4})|(?:[🂫🂻🃊🃚]{2,4})|(?:[🂪🂺🃉🃙]{2,4})|(?:[🂭🂽🃋🃛]{2,4})|(?:[🂡🂱🃁🃑🂮🂾🃎🃞]{3,4})|(?:[🂭🂽🃋🃛🂫🂻🃊🃚]{3,4})|(?:[🂪🂺🃉🃙🂭🂽🃋🃛]{3,4})|(?:[🂡🂱🃁🃑🂮🂾🃎🃞🂭🂽🃋🃛]{4})|(?:[🂫🂻🃊🃚🂭🂽🃋🃛]{4})|(?:[🂡🂱🃁🃑🂮🂾🃎🃞🂭🂽🃋🃛]{4})|(?:[🂪🂺🃉🃙🂡-🂻🃁-🃛]{4})|(?:[🂠-🂮]{5})";
     const HAND_ROYAL_FLUSH: usize = 0x900000;
     const HAND_STRAIGHT_FLUSH: usize = 0x800000;
     const HAND_FOUR_OF_A_KIND: usize = 0x700000;
@@ -124,7 +109,7 @@ impl Hand {
             CardDeck::card_rank(b).cmp(&CardDeck::card_rank(a))
         });
 
-        /*
+
         let hand_string: String = self.to_string();//self.cards.iter().copied().collect();
 
         let flush_result = regex::Regex::new(Self::HAND_FLUSH_REGEX)
@@ -136,11 +121,6 @@ impl Hand {
         let of_a_kind_result = regex::Regex::new(Self::HAND_OF_A_KIND_REGEX)
             .unwrap()
             .captures(&hand_string);
-        */
-        let hand_string = self.to_string();
-        let flush_result = HAND_FLUSH_REGEX.captures(&hand_string);
-        let straight_result = HAND_STRAIGHT_REGEX.captures(&hand_string);
-        let of_a_kind_result = HAND_OF_A_KIND_REGEX.captures(&hand_string);
 
         if let Some(flush_result) = flush_result {
             if let Some(straight_result) = straight_result {
@@ -216,7 +196,7 @@ impl Hand {
                     }
                 } else {
                     let of_a_kind_card_rank =
-                        CardDeck::card_rank(&first_of_a_kind[0..2]);
+                        CardDeck::card_rank(&first_of_a_kind.chars().take(2).collect::<String>());
                     let mut other_cards_rank = 0;
 
                     for card in &self.cards {
@@ -422,10 +402,10 @@ fn main() {
     let mut players = vec![Player::new(&opts.player1), Player::new(&opts.player2)];
 
     // Play hands
-    play_hands_verbose(&mut players, opts.verbose);
-
-    // Play hands
-    play_hands(&mut players);
-
+    if opts.verbose {
+        play_hands_verbose(&mut players, opts.verbose);
+    } else {
+        play_hands(&mut players);
+    }
 }
 
