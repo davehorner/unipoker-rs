@@ -2,6 +2,8 @@ use rand::seq::SliceRandom;
 use std::fmt;
 use regex::Regex;
 use clap::Parser;
+use std::thread::sleep;
+use std::time::Duration;
 
  const NEW_DECK: [&str; 52] = [
     // Spades
@@ -257,6 +259,21 @@ impl Player {
         self.hand_type_counts[hand_type as usize] += 1;
     }
 
+    fn describe_hand(&self) -> &'static str {
+        match self.hand.rank {
+            Hand::HAND_ROYAL_FLUSH => "Royal Flush",
+            Hand::HAND_STRAIGHT_FLUSH => "Straight Flush",
+            Hand::HAND_FOUR_OF_A_KIND => "Four of a Kind",
+            Hand::HAND_FULL_HOUSE => "Full House",
+            Hand::HAND_FLUSH => "Flush",
+            Hand::HAND_STRAIGHT => "Straight",
+            Hand::HAND_THREE_OF_A_KIND => "Three of a Kind",
+            Hand::HAND_TWO_PAIR => "Two Pair",
+            Hand::HAND_PAIR => "Pair",
+            _ => "High Card",
+        }
+    }
+
     fn won_hand(&mut self) {
         self.wins += 1;
     }
@@ -349,6 +366,10 @@ fn play_hands_verbose(players: &mut Vec<Player>, verbose: bool) {
 
         for player in players.iter_mut() {
             player.score_hand();
+            if verbose {
+                println!("{}'s Hand: {}", player.name(), player.hand());
+                println!("{}'s Hand Description: {}", player.name(), player.describe_hand());
+            }
         }
 
         hands_played += 1;
@@ -362,6 +383,10 @@ fn play_hands_verbose(players: &mut Vec<Player>, verbose: bool) {
         for player in players.iter_mut() {
             if player.hand.rank == highest_rank {
                 player.won_hand();
+                if player.hand.rank == Hand::HAND_ROYAL_FLUSH {
+                    println!("Pausing for 3 seconds for a Royal Flush!");
+                    sleep(Duration::from_secs(3));
+                }
             }
         }
 
@@ -369,7 +394,7 @@ fn play_hands_verbose(players: &mut Vec<Player>, verbose: bool) {
             println!("Winner(s) of this hand:");
             for player in players.iter() {
                 if player.hand.rank == highest_rank {
-                    println!("{} won!", player.name());
+                    println!("{} won with a {}", player.name(), player.describe_hand());
                 } else {
                     println!("{} lost.", player.name());
                 }
@@ -378,7 +403,6 @@ fn play_hands_verbose(players: &mut Vec<Player>, verbose: bool) {
         }
     }
 }
-
 #[derive(Parser, Debug)]
 struct Opts {
     /// Name of Player 1
