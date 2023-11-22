@@ -1,7 +1,7 @@
 use rand::seq::SliceRandom;
 use std::fmt;
 use regex::Regex;
-//use regex::bytes::Regex;
+use clap::Parser;
 
 // Define regex instances outside the method with static lifetime
 lazy_static::lazy_static! {
@@ -50,7 +50,7 @@ impl CardDeck {
         self.cards.pop()
     }
 
-    fn card_rank(card: &'static str) -> usize {
+    fn card_rank(card: &str) -> usize {
         let rank_of_card = card.chars().next().unwrap() as usize & 0xf;
         if rank_of_card == 0x1 {
             // Make Aces higher than Kings
@@ -60,7 +60,7 @@ impl CardDeck {
         }
     }
 
-    fn card_name(card: &'static str) -> &'static str {
+    fn card_name(card: &str) -> &str {
         let rank_of_card = Self::card_rank(card);
         CARD_RANK_NAMES[rank_of_card]
     }
@@ -162,7 +162,7 @@ impl Hand {
             if of_a_kind_result[0].len() == 8 {
                 self.rank = Hand::HAND_FOUR_OF_A_KIND | CardDeck::card_rank(self.cards[0]);
             } else {
-                let first_of_a_kind = &of_a_kind_result[0].to_string();
+                let first_of_a_kind = &of_a_kind_result[0];
                 let remaining_cards_index =
                     hand_string.find(first_of_a_kind).unwrap() + first_of_a_kind.len();
                 let mut second_of_a_kind_result = None;
@@ -330,13 +330,102 @@ fn play_hands(players: &mut Vec<Player>) {
     }
 }
 
+
+fn play_hands_verbose(players: &mut Vec<Player>, verbose: bool) {
+    let mut card_deck = CardDeck::new();
+    let mut hands_played = 0;
+    let mut highest_rank = 0;
+
+    while hands_played < 2000 {
+        card_deck.shuffle();
+
+        if verbose {
+            println!("Hands dealt:");
+            for player in players.iter_mut() {
+                println!("{}: {}", player.name(), player.hand());
+            }
+            println!("------------------------");
+        }
+
+        for player in players.iter_mut() {
+            player.hand.clear();
+        }
+
+        for _ in 0..5 {
+            for player in players.iter_mut() {
+                if let Some(card) = card_deck.deal_one_card() {
+                    player.hand.take_card(card);
+                }
+            }
+        }
+
+        if verbose {
+            println!("Hands after dealing:");
+            for player in players.iter_mut() {
+                println!("{}: {}", player.name(), player.hand());
+            }
+            println!("------------------------");
+        }
+
+        for player in players.iter_mut() {
+            player.score_hand();
+        }
+
+        hands_played += 1;
+
+        highest_rank = players
+            .iter()
+            .map(|player| player.hand.rank)
+            .max()
+            .unwrap_or_default();
+
+        for player in players.iter_mut() {
+            if player.hand.rank == highest_rank {
+                player.won_hand();
+            }
+        }
+
+        if verbose {
+            println!("Winner(s) of this hand:");
+            for player in players.iter() {
+                if player.hand.rank == highest_rank {
+                    println!("{} won!", player.name());
+                } else {
+                    println!("{} lost.", player.name());
+                }
+            }
+            println!("------------------------");
+        }
+    }
+}
+
+#[derive(Parser, Debug)]
+struct Opts {
+    /// Name of Player 1
+    #[clap(short='1', long, default_value = "Player1")]
+    player1: String,
+
+    /// Name of Player 2
+    #[clap(short='2', long, default_value = "Player2")]
+    player2: String,
+
+    /// Print hands as they are dealt and display winner/loser information
+    #[clap(short, long)]
+    verbose: bool,
+}
+
 fn main() {
+    // Parse command-line arguments using clap
+    let opts: Opts = Opts::parse();
+
     // Create and initialize players
-    let mut players = vec![Player::new("Player1"), Player::new("Player2")];
+    let mut players = vec![Player::new(&opts.player1), Player::new(&opts.player2)];
+
+    // Play hands
+    play_hands_verbose(&mut players, opts.verbose);
 
     // Play hands
     play_hands(&mut players);
 
-    // Display results or perform further actions
 }
 
