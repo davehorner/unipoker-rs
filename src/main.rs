@@ -1,6 +1,6 @@
 use rand::seq::SliceRandom;
 use std::fmt;
-use regex::Regex;
+// use regex::Regex;
 use clap::Parser;
 use std::thread::sleep;
 use std::time::Duration;
@@ -15,8 +15,8 @@ use std::time::Duration;
     // Diamonds
     "🃁", "🃂", "🃃", "🃄", "🃅", "🃆", "🃇", "🃈", "🃉", "🃊", "🃋", "🃍", "🃎",
 ];
-const CARD_RANK_NAMES: [&str; 15] = [
-    "", "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "", "Queen", "King",
+const CARD_RANK_NAMES: [&str; 16] = [
+    "", "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "", "Ace",
 ];
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -46,19 +46,88 @@ impl CardDeck {
     }
 
     fn card_rank(card: &str) -> usize {
-        let rank_of_card = card.chars().next().unwrap() as usize & 0xf;
-        if rank_of_card == 0x1 {
-            // Make Aces higher than Kings
-            0xf
-        } else {
-            rank_of_card
+        return match card {
+            
+            "🂢" | "🂲" | "🃒" | "🃂" => 2,
+            "🂣" | "🂳" | "🃓" | "🃃" => 3,
+            "🂤" | "🂴" | "🃔" | "🃄" => 4,
+            "🂥" | "🂵" | "🃕" | "🃅" => 5,
+            "🂦" | "🂶" | "🃖" | "🃆" => 6,
+            "🂧" | "🂷" | "🃗" | "🃇" => 7,
+            "🂨" | "🂸" | "🃘" | "🃈" => 8,
+            "🂩" | "🂹" | "🃙" | "🃉" => 9,
+            "🂪" | "🂺" | "🃚" | "🃊" => 10,
+            "🂫" | "🂻" | "🃛" | "🃋" => 11,
+            "🂭" | "🂽" | "🃝" | "🃍" => 12,
+            "🂮" | "🂾" | "🃞" | "🃎" => 13,
+            "🂺" => 11, // Jack
+            "🂽" => 12, // Queen
+            "🂾" => 13, // King
+            "🂡" | "🂱" | "🃑" | "🃁" => 15, // Ace
+            _ => 0, // Invalid or unknown card
         }
+        // let rank_of_card = card.chars().next().unwrap() as usize & 0xf;
+        // if rank_of_card == 0x1 {
+        //     // Make Aces higher than Kings
+        //     0xf
+        // } else {
+        //     rank_of_card
+        // }
     }
 
     fn card_name(card: &str) -> &str {
-        let rank_of_card = Self::card_rank(card);
-        CARD_RANK_NAMES[rank_of_card]
+        let (rank_of_card,suit) = Self::card_rank_suit(card);
+        if rank_of_card < CARD_RANK_NAMES.len() {
+            //std::println!("{}-{}-{} of {}", card,rank_of_card, CARD_RANK_NAMES[rank_of_card],suit);
+            CARD_RANK_NAMES[rank_of_card]
+        } else {
+            //std::println!("Invalid card rank: {}", rank_of_card);
+            ""
+        }
     }
+
+    fn card_suit(card: &str) -> &str {
+        match card.chars().last().unwrap() {
+            '🂡'..='🂮' => "Spades",
+            '🂱'..='🂾' => "Hearts",
+            '🃑'..='🃞' => "Clubs",
+            '🃁'..='🃎' => "Diamonds",
+            _ => "Unknown",
+        }
+    }
+
+    
+    fn card_rank_suit(card: &str) -> (usize, &'static str) {
+        let rank = match card {
+            "🂡" | "🂱" | "🃑" | "🃁" => 1,
+            "🂢" | "🂲" | "🃒" | "🃂" => 2,
+            "🂣" | "🂳" | "🃓" | "🃃" => 3,
+            "🂤" | "🂴" | "🃔" | "🃄" => 4,
+            "🂥" | "🂵" | "🃕" | "🃅" => 5,
+            "🂦" | "🂶" | "🃖" | "🃆" => 6,
+            "🂧" | "🂷" | "🃗" | "🃇" => 7,
+            "🂨" | "🂸" | "🃘" | "🃈" => 8,
+            "🂩" | "🂹" | "🃙" | "🃉" => 9,
+            "🂪" | "🂺" | "🃚" | "🃊" => 10,
+            "🂫" | "🂻" | "🃛" | "🃋" => 11,
+            "🂭" | "🂽" | "🃝" | "🃍" => 12,
+            "🂮" | "🂾" | "🃞" | "🃎" => 13,
+            "🂺" => 11, // Jack
+            "🂽" => 12, // Queen
+            "🂾" => 13, // King
+            "🂡" => 14, // Ace
+            _ => 0, // Invalid or unknown card
+        };
+
+        let suit = match card.chars().last().unwrap() {
+            '🂡'..='🂮' => "Spades",
+            '🂱'..='🂾' => "Hearts",
+            '🃑'..='🃞' => "Clubs",
+            '🃁'..='🃎' => "Diamonds",
+            _ => "Unknown",
+        };
+
+        (rank, suit)    }
 }
 
 
@@ -261,17 +330,17 @@ impl Player {
 
     fn describe_hand(&self) -> &'static str {
         match self.hand.rank {
-            Hand::HAND_ROYAL_FLUSH => "Royal Flush",
-            Hand::HAND_STRAIGHT_FLUSH => "Straight Flush",
-            Hand::HAND_FOUR_OF_A_KIND => "Four of a Kind",
-            Hand::HAND_FULL_HOUSE => "Full House",
-            Hand::HAND_FLUSH => "Flush",
-            Hand::HAND_STRAIGHT => "Straight",
-            Hand::HAND_THREE_OF_A_KIND => "Three of a Kind",
-            Hand::HAND_TWO_PAIR => "Two Pair",
-            Hand::HAND_PAIR => "Pair",
-            _ => "High Card",
-        }
+            r if r & Hand::HAND_ROYAL_FLUSH == Hand::HAND_ROYAL_FLUSH => "Royal Flush",
+            r if r & Hand::HAND_STRAIGHT_FLUSH == Hand::HAND_STRAIGHT_FLUSH => "Straight Flush",
+            r if r & Hand::HAND_FOUR_OF_A_KIND == Hand::HAND_FOUR_OF_A_KIND => "Four of a Kind",
+            r if r & Hand::HAND_FULL_HOUSE == Hand::HAND_FULL_HOUSE => "Full House",
+            r if r & Hand::HAND_FLUSH == Hand::HAND_FLUSH => "Flush",
+            r if r & Hand::HAND_STRAIGHT == Hand::HAND_STRAIGHT => "Straight",
+            r if r & Hand::HAND_THREE_OF_A_KIND == Hand::HAND_THREE_OF_A_KIND => "Three of a Kind",
+            r if r & Hand::HAND_TWO_PAIR == Hand::HAND_TWO_PAIR => "Two Pair",
+            r if r & Hand::HAND_PAIR == Hand::HAND_PAIR => "One Pair",
+            _ => "High Card", // Default case or handle it according to your requirements
+        }        
     }
 
     fn won_hand(&mut self) {
@@ -290,7 +359,7 @@ impl Player {
 fn play_hands(players: &mut Vec<Player>) {
     let mut card_deck = CardDeck::new();
     let mut hands_played = 0;
-    let mut highest_rank = 0;
+    let mut highest_rank;
 
     while hands_played < 2000 {
         card_deck.shuffle();
@@ -331,7 +400,7 @@ fn play_hands(players: &mut Vec<Player>) {
 fn play_hands_verbose(players: &mut Vec<Player>, verbose: bool) {
     let mut card_deck = CardDeck::new();
     let mut hands_played = 0;
-    let mut highest_rank = 0;
+    let mut highest_rank;
 
     while hands_played < 2000 {
         card_deck.shuffle();
@@ -439,82 +508,95 @@ fn main() {
 mod tests {
     use super::*;
 
+
     #[test]
     fn test_royal_flush() {
         let mut player = Player::new("TestPlayer");
-        player.hand.cards = vec!["🂡", "🂱", "🂻", "🃛", "🂮"]; // Royal Flush in Hearts
+        //player.hand.take_card("🂡");
+        //player.hand.take_card("🂱");
+        player.hand.cards = vec!["🂺", "🂻", "🂽", "🂾", "🂱"]; // Royal Flush in Hearts
+        // Describe each card in the hand
+        for card in player.hand.cards.iter() {
+            std::println!("{} - {} {}", card, CardDeck::card_name(card), CardDeck::card_suit(card));
+        }
         player.score_hand();
-        assert_eq!(player.hand.rank, Hand::HAND_ROYAL_FLUSH);
-    }
+        assert_eq!(player.hand.rank & Hand::HAND_ROYAL_FLUSH, Hand::HAND_ROYAL_FLUSH);
+        
 
+    }
+    
     #[test]
     fn test_straight_flush() {
         let mut player = Player::new("TestPlayer");
-        player.hand.cards = vec!["🂡", "🂢", "🂣", "🂤", "🂥"]; // Straight Flush in Spades
+        player.hand.cards = vec!["🂢", "🂣", "🂤", "🂥","🂦"]; // Straight Flush in Spades
+        // Describe each card in the hand
+        for card in player.hand.cards.iter() {
+            std::println!("{} - {} {}", card, CardDeck::card_name(card), CardDeck::card_suit(card));
+        }
         player.score_hand();
-        assert_eq!(player.hand.rank, Hand::HAND_STRAIGHT_FLUSH);
+        assert_eq!(player.hand.rank & Hand::HAND_STRAIGHT_FLUSH, Hand::HAND_STRAIGHT_FLUSH);
     }
-
+    
     #[test]
     fn test_four_of_a_kind() {
         let mut player = Player::new("TestPlayer");
         player.hand.cards = vec!["🂡", "🂱", "🂻", "🃛", "🂮"]; // Four of a Kind with Aces
         player.score_hand();
-        assert_eq!(player.hand.rank, Hand::HAND_FOUR_OF_A_KIND);
+        assert_eq!(player.hand.rank & Hand::HAND_FOUR_OF_A_KIND, Hand::HAND_FOUR_OF_A_KIND);
     }
-
+    
     #[test]
     fn test_full_house() {
         let mut player = Player::new("TestPlayer");
         player.hand.cards = vec!["🂡", "🂱", "🂻", "🃛", "🃛"]; // Full House with Aces over Kings
         player.score_hand();
-        assert_eq!(player.hand.rank, Hand::HAND_FULL_HOUSE);
+        assert_eq!(player.hand.rank & Hand::HAND_FULL_HOUSE, Hand::HAND_FULL_HOUSE);
     }
-
+    
     #[test]
     fn test_flush() {
         let mut player = Player::new("TestPlayer");
         player.hand.cards = vec!["🂡", "🂱", "🂻", "🃛", "🃛"]; // Flush in Hearts
         player.score_hand();
-        assert_eq!(player.hand.rank, Hand::HAND_FLUSH);
+        assert_eq!(player.hand.rank & Hand::HAND_FLUSH, Hand::HAND_FLUSH);
     }
-
+    
     #[test]
     fn test_straight() {
         let mut player = Player::new("TestPlayer");
         player.hand.cards = vec!["🂡", "🂢", "🂣", "🂤", "🂥"]; // Straight in Spades
         player.score_hand();
-        assert_eq!(player.hand.rank, Hand::HAND_STRAIGHT);
+        assert_eq!(player.hand.rank & Hand::HAND_STRAIGHT, Hand::HAND_STRAIGHT);
     }
-
+    
     #[test]
     fn test_three_of_a_kind() {
         let mut player = Player::new("TestPlayer");
         player.hand.cards = vec!["🂡", "🂱", "🂻", "🃛", "🂮"]; // Three of a Kind with Aces
         player.score_hand();
-        assert_eq!(player.hand.rank, Hand::HAND_THREE_OF_A_KIND);
+        assert_eq!(player.hand.rank & Hand::HAND_THREE_OF_A_KIND, Hand::HAND_THREE_OF_A_KIND);
     }
-
+    
     #[test]
     fn test_two_pair() {
         let mut player = Player::new("TestPlayer");
         player.hand.cards = vec!["🂡", "🂱", "🃛", "🃛", "🂮"]; // Two Pair with Aces and Kings
         player.score_hand();
-        assert_eq!(player.hand.rank, Hand::HAND_TWO_PAIR);
+        assert_eq!(player.hand.rank & Hand::HAND_TWO_PAIR, Hand::HAND_TWO_PAIR);
     }
-
+    
     #[test]
     fn test_pair() {
         let mut player = Player::new("TestPlayer");
         player.hand.cards = vec!["🂡", "🂱", "🃛", "🂮", "🂮"]; // Pair with Aces
         player.score_hand();
-        assert_eq!(player.hand.rank, Hand::HAND_PAIR);
+        assert_eq!(player.hand.rank & Hand::HAND_PAIR, Hand::HAND_PAIR);
     }
-
+    
     #[test]
     fn test_high_card() {
         let mut player = Player::new("TestPlayer");
-        player.hand.cards = vec!["🂡", "🂢", "🂣", "🂤", "🂥"]; // High Card
+        player.hand.cards = vec!["🂡", "🂢", "🃛", "🂤", "🂥"]; // High Card
         player.score_hand();
         assert_eq!(player.hand.rank, 0);
     }
