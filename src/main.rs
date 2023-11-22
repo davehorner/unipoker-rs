@@ -433,3 +433,89 @@ fn main() {
     }
 }
 
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_royal_flush() {
+        let mut player = Player::new("TestPlayer");
+        player.hand.cards = vec!["🂡", "🂱", "🂻", "🃛", "🂮"]; // Royal Flush in Hearts
+        player.score_hand();
+        assert_eq!(player.hand.rank, Hand::HAND_ROYAL_FLUSH);
+    }
+
+    #[test]
+    fn test_straight_flush() {
+        let mut player = Player::new("TestPlayer");
+        player.hand.cards = vec!["🂡", "🂢", "🂣", "🂤", "🂥"]; // Straight Flush in Spades
+        player.score_hand();
+        assert_eq!(player.hand.rank, Hand::HAND_STRAIGHT_FLUSH);
+    }
+
+    #[test]
+    fn test_four_of_a_kind() {
+        let mut player = Player::new("TestPlayer");
+        player.hand.cards = vec!["🂡", "🂱", "🂻", "🃛", "🂮"]; // Four of a Kind with Aces
+        player.score_hand();
+        assert_eq!(player.hand.rank, Hand::HAND_FOUR_OF_A_KIND);
+    }
+
+    #[test]
+    fn test_full_house() {
+        let mut player = Player::new("TestPlayer");
+        player.hand.cards = vec!["🂡", "🂱", "🂻", "🃛", "🃛"]; // Full House with Aces over Kings
+        player.score_hand();
+        assert_eq!(player.hand.rank, Hand::HAND_FULL_HOUSE);
+    }
+
+    #[test]
+    fn test_flush() {
+        let mut player = Player::new("TestPlayer");
+        player.hand.cards = vec!["🂡", "🂱", "🂻", "🃛", "🃛"]; // Flush in Hearts
+        player.score_hand();
+        assert_eq!(player.hand.rank, Hand::HAND_FLUSH);
+    }
+
+    #[test]
+    fn test_straight() {
+        let mut player = Player::new("TestPlayer");
+        player.hand.cards = vec!["🂡", "🂢", "🂣", "🂤", "🂥"]; // Straight in Spades
+        player.score_hand();
+        assert_eq!(player.hand.rank, Hand::HAND_STRAIGHT);
+    }
+
+    #[test]
+    fn test_three_of_a_kind() {
+        let mut player = Player::new("TestPlayer");
+        player.hand.cards = vec!["🂡", "🂱", "🂻", "🃛", "🂮"]; // Three of a Kind with Aces
+        player.score_hand();
+        assert_eq!(player.hand.rank, Hand::HAND_THREE_OF_A_KIND);
+    }
+
+    #[test]
+    fn test_two_pair() {
+        let mut player = Player::new("TestPlayer");
+        player.hand.cards = vec!["🂡", "🂱", "🃛", "🃛", "🂮"]; // Two Pair with Aces and Kings
+        player.score_hand();
+        assert_eq!(player.hand.rank, Hand::HAND_TWO_PAIR);
+    }
+
+    #[test]
+    fn test_pair() {
+        let mut player = Player::new("TestPlayer");
+        player.hand.cards = vec!["🂡", "🂱", "🃛", "🂮", "🂮"]; // Pair with Aces
+        player.score_hand();
+        assert_eq!(player.hand.rank, Hand::HAND_PAIR);
+    }
+
+    #[test]
+    fn test_high_card() {
+        let mut player = Player::new("TestPlayer");
+        player.hand.cards = vec!["🂡", "🂢", "🂣", "🂤", "🂥"]; // High Card
+        player.score_hand();
+        assert_eq!(player.hand.rank, 0);
+    }
+}
