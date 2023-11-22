@@ -15,9 +15,6 @@ use std::time::Duration;
     // Diamonds
     "🃁", "🃂", "🃃", "🃄", "🃅", "🃆", "🃇", "🃈", "🃉", "🃊", "🃋", "🃍", "🃎",
 ];
-const CARD_RANK_NAMES: [&str; 16] = [
-    "", "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "", "Ace",
-];
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 struct CardDeck {
@@ -64,16 +61,27 @@ impl CardDeck {
         }
     }
 
+    #[allow(dead_code)]
     fn card_name(card: &str) -> &str {
-        let rank_of_card=Self::card_rank(card);
-        let suit=Self::card_suit(card);
-        if rank_of_card < CARD_RANK_NAMES.len() {
-            CARD_RANK_NAMES[rank_of_card]
-        } else {
-            ""
+        return match card {
+            "🂡" | "🂱" | "🃑" | "🃁" => "Ace",
+            "🂢" | "🂲" | "🃒" | "🃂" => "2",
+            "🂣" | "🂳" | "🃓" | "🃃" => "3",
+            "🂤" | "🂴" | "🃔" | "🃄" => "4",
+            "🂥" | "🂵" | "🃕" | "🃅" => "5",
+            "🂦" | "🂶" | "🃖" | "🃆" => "6",
+            "🂧" | "🂷" | "🃗" | "🃇" => "7",
+            "🂨" | "🂸" | "🃘" | "🃈" => "8",
+            "🂩" | "🂹" | "🃙" | "🃉" => "9",
+            "🂪" | "🂺" | "🃚" | "🃊" => "10",
+            "🂫" | "🂻" | "🃛" | "🃋" => "Jack",
+            "🂭" | "🂽" | "🃝" | "🃍" => "Queen",
+            "🂮" | "🂾" | "🃞" | "🃎" => "King",
+            _ => "", // Invalid or unknown card
         }
     }
-
+    
+    #[allow(dead_code)]
     fn card_suit(card: &str) -> &str {
         match card.chars().last().unwrap() {
             '🂡'..='🂮' => "Spades",
@@ -122,6 +130,7 @@ impl Hand {
         self.cards.push(card);
     }
 
+    #[allow(dead_code)]
     fn rank(&self) -> usize {
         self.rank
     }
@@ -149,7 +158,7 @@ impl Hand {
             .unwrap()
             .captures(&hand_string);
 
-        if let Some(flush_result) = flush_result {
+        if let Some(_flush_result) = flush_result {
             if let Some(straight_result) = straight_result {
                 if straight_result.get(1).is_some() {
                     self.rank = Hand::HAND_ROYAL_FLUSH;
@@ -162,7 +171,7 @@ impl Hand {
 
             self.rank |=
                 CardDeck::card_rank(self.cards[0]) << 16 | CardDeck::card_rank(self.cards[1]) << 12;
-        } else if let Some(straight_result) = straight_result {
+        } else if let Some(_straight_result) = straight_result {
             self.rank = Hand::HAND_STRAIGHT | CardDeck::card_rank(self.cards[0]) << 16
                 | CardDeck::card_rank(self.cards[1]) << 12;
         } else if let Some(of_a_kind_result) = of_a_kind_result {
