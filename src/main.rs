@@ -47,7 +47,7 @@ impl CardDeck {
 
     fn card_rank(card: &str) -> usize {
         return match card {
-            
+            "🂡" | "🂱" | "🃑" | "🃁" => 15, // Ace
             "🂢" | "🂲" | "🃒" | "🃂" => 2,
             "🂣" | "🂳" | "🃓" | "🃃" => 3,
             "🂤" | "🂴" | "🃔" | "🃄" => 4,
@@ -60,28 +60,16 @@ impl CardDeck {
             "🂫" | "🂻" | "🃛" | "🃋" => 11,
             "🂭" | "🂽" | "🃝" | "🃍" => 12,
             "🂮" | "🂾" | "🃞" | "🃎" => 13,
-            "🂺" => 11, // Jack
-            "🂽" => 12, // Queen
-            "🂾" => 13, // King
-            "🂡" | "🂱" | "🃑" | "🃁" => 15, // Ace
             _ => 0, // Invalid or unknown card
         }
-        // let rank_of_card = card.chars().next().unwrap() as usize & 0xf;
-        // if rank_of_card == 0x1 {
-        //     // Make Aces higher than Kings
-        //     0xf
-        // } else {
-        //     rank_of_card
-        // }
     }
 
     fn card_name(card: &str) -> &str {
-        let (rank_of_card,suit) = Self::card_rank_suit(card);
+        let rank_of_card=Self::card_rank(card);
+        let suit=Self::card_suit(card);
         if rank_of_card < CARD_RANK_NAMES.len() {
-            //std::println!("{}-{}-{} of {}", card,rank_of_card, CARD_RANK_NAMES[rank_of_card],suit);
             CARD_RANK_NAMES[rank_of_card]
         } else {
-            //std::println!("Invalid card rank: {}", rank_of_card);
             ""
         }
     }
@@ -96,38 +84,6 @@ impl CardDeck {
         }
     }
 
-    
-    fn card_rank_suit(card: &str) -> (usize, &'static str) {
-        let rank = match card {
-            "🂡" | "🂱" | "🃑" | "🃁" => 1,
-            "🂢" | "🂲" | "🃒" | "🃂" => 2,
-            "🂣" | "🂳" | "🃓" | "🃃" => 3,
-            "🂤" | "🂴" | "🃔" | "🃄" => 4,
-            "🂥" | "🂵" | "🃕" | "🃅" => 5,
-            "🂦" | "🂶" | "🃖" | "🃆" => 6,
-            "🂧" | "🂷" | "🃗" | "🃇" => 7,
-            "🂨" | "🂸" | "🃘" | "🃈" => 8,
-            "🂩" | "🂹" | "🃙" | "🃉" => 9,
-            "🂪" | "🂺" | "🃚" | "🃊" => 10,
-            "🂫" | "🂻" | "🃛" | "🃋" => 11,
-            "🂭" | "🂽" | "🃝" | "🃍" => 12,
-            "🂮" | "🂾" | "🃞" | "🃎" => 13,
-            "🂺" => 11, // Jack
-            "🂽" => 12, // Queen
-            "🂾" => 13, // King
-            "🂡" => 14, // Ace
-            _ => 0, // Invalid or unknown card
-        };
-
-        let suit = match card.chars().last().unwrap() {
-            '🂡'..='🂮' => "Spades",
-            '🂱'..='🂾' => "Hearts",
-            '🃑'..='🃞' => "Clubs",
-            '🃁'..='🃎' => "Diamonds",
-            _ => "Unknown",
-        };
-
-        (rank, suit)    }
 }
 
 
